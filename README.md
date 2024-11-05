@@ -84,3 +84,138 @@ Pare o servidor e inicie ele novamente. Alguns arquivos de configuração foram 
 
 Rodando o servidor novamente, recarregue a tela. Agora é possível adicionar um novo usuário através do "Sign Up" ou fazer login se já ter um usuário cadastrado.
 
+## CRUD de Tópicos
+
+Seguindo com a aplicação, vamos criar o CRUD de tópicos. Para isso use o gerador `scaffold`
+
+```bash
+rails generate scaffold topic title:string description:string is_private:boolean user:references
+```
+
+Isso vai gerar tudo o que precisamos para trabalhar com os tópicos.
+
+- Rode a migração.
+
+Em `models/topic.rb` adicione as validações necessárias:
+
+```ruby
+...
+validates :title, :description, presence: true
+```
+
+No arquivo `models/user.rb` defina o relacionamento entre Topic e User:
+
+```ruby
+has_many :topics, dependent: :destroy
+```
+
+Isso quer dizer que o User pode ter muitos Topics e se o usuário for destruído os tópicos também serão destruídos.
+
+Seguindo para os testes:
+
+Em `test/fixtures/users.yml` adicione o seguinte código:
+
+```yml
+one:
+  email: "user@example.com"
+
+two:
+  email: "another_user@example.com"
+```
+
+E em `test/fixtures/topics.yml`:
+```yml
+one:
+  title: MyString
+  description: MyString
+  user: one
+  is_private: false
+
+two:
+  title: MyString
+  description: MyString
+  user: two
+  is_private: false
+```
+
+Em `test/models/topic_test.rb`:
+```ruby
+ test "the truth" do
+    topic = topics(:one)
+    assert topic.valid?
+  end
+
+  test "should not be valid without title" do
+    topic = topics(:one)
+    topic.title = nil
+
+    assert_not topic.valid?
+  end
+
+  test "should not be valid without description" do
+    topic = topics(:one)
+    topic.description = nil
+
+    assert_not topic.valid?
+  end
+
+  test "should not be valid without user" do
+    topic = topics(:one)
+    topic.user = nil
+
+    assert_not topic.valid?
+  end
+```
+
+Rode os testes:
+
+```bash
+rails test
+```
+
+Todos os testes estão passando?!
+
+Adicionando autenticação no `TopicsController`
+Adicione a `before_action` no controller:
+
+```ruby
+class TopicsController < ApplicationController
+  before_action :authenticate_user!
+  ....
+```
+
+Agora rode os testes novamente...
+
+O teste não está realizando a autenticação antes de fazer a request, e por isso está quebrando. Vamos resolver isso:
+
+Para isso vá para o arquivo dos testes que estão quebrando:
+`test/controllers/topics_controller_test.rb`
+
+Carregue uma instância de usuário no setup, definindo como uma variável global:
+
+```ruby
+  setup do
+    @user = users(:one)
+    @topic = topics(:one)
+  end
+```
+
+E antes de todas as chamadas de request adicione o `sign_in`:
+```ruby
+  test "should get index" do
+    sign_in @user
+
+    get topics_url
+    assert_response :success
+  end
+```
+
+Isso ainda não vai funcionar, vamos precisar incluir uma classe para isso funcionar, para isso, abra o arquivo `test/test_helper.rb`
+e na linha 7 adicione isso:
+
+```ruby
+include Devise::Test::IntegrationHelpers
+```
+
+Agora sim, rode os testes novamente. Todos passaram?
+
