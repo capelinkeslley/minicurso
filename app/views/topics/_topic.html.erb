@@ -1,22 +1,14 @@
 <div id="<%= dom_id topic %>">
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Title:</strong>
-    <%= topic.title %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Description:</strong>
-    <%= topic.description %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">Is private:</strong>
-    <%= topic.is_private %>
-  </p>
-
-  <p class="my-5">
-    <strong class="block font-medium mb-1">User:</strong>
-    <%= topic.user_id %>
-  </p>
-
+  <ul role="list" class="divide-y divide-gray-100">
+    <li class="flex justify-between gap-x-6 py-5">
+      <div class="flex min-w-0 gap-x-4">
+        <div class="min-w-0 flex-auto">
+          <p class="text-lg font-semibold text-gray-900"><%= topic.title %></p>
+          <p class="text-sm/6 font-semibold text-xs/5 text-gray-900"><%= topic.user.email %></p>
+          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= topic.description %></p>
+          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= topic.is_private ? "Privado" : "" %></p>
+        </div>
+      </div>
+    </li>
+  </ul>
 </div>

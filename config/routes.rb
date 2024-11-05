@@ -6,6 +6,10 @@ Rails.application.routes.draw do
     unauthenticated do
       root to: "devise/sessions#new", as: :unauthenticated_root
     end
+
+    authenticated do
+      root "topics#index"
+    end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
