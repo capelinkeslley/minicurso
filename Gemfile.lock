@@ -298,6 +298,12 @@ GEM
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.1.1)
+    tailwindcss-rails (3.0.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby
+    tailwindcss-ruby (3.4.14-aarch64-linux)
+    tailwindcss-ruby (3.4.14-arm64-darwin)
+    tailwindcss-ruby (3.4.14-x86_64-linux)
     thor (1.3.2)
     thruster (0.1.8-aarch64-linux)
     thruster (0.1.8-arm64-darwin)
@@ -347,6 +353,7 @@ DEPENDENCIES
   solid_cache
   solid_queue
   stimulus-rails
+  tailwindcss-rails (~> 3.0)
   thruster
   turbo-rails
   tzinfo-data

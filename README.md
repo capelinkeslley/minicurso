@@ -1,24 +1,41 @@
-# README
+# Criando um Blog de Notas para Programadores
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Gerando o projeto minicurso:
 
-Things you may want to cover:
+```bash
+rails new minicurso -d postgresql
+```
 
-* Ruby version
+Isso vai gerar toda a estrutura do projeto Ruby on Rails.
 
-* System dependencies
+## Configurando o TailwindCSS:
 
-* Configuration
+A aplicação já gera as visualizações com estilização, mas podemos melhorar um pouco mais, com isso, vamos instalar o [TailwindCSS](https://tailwindui.com/).
+Link da documentação completa da instalação: [Guia para instalar o TailwindCSS no Ruby on Rails](https://tailwindcss.com/docs/guides/ruby-on-rails).
 
-* Database creation
+No terminal rode o seguinte comando para adicionar o TailwindCSS no projeto:
 
-* Database initialization
+```bash
+./bin/bundle add tailwindcss-rails
+```
 
-* How to run the test suite
+Rode o seguinte comando para instalar:
 
-* Services (job queues, cache servers, search engines, etc.)
+```bash
+./bin/rails tailwindcss:install
+```
 
-* Deployment instructions
+## Rodando o servidor:
 
-* ...
+Após a instalação do TailwindCSS rode o projeto usando o seguinte comando:
+
+```bash
+./bin/dev
+```
+
+Crie o banco de dados, isso pode ser feito pela interface clicando no botão "Create database" ou pelo terminal:
+
+```bash
+rails db:migrate
+```
+
