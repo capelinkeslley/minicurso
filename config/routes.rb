@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  resources :topics
+  resources :topics do
+    resources :posts
+  end
   devise_for :users
 
   devise_scope :user do

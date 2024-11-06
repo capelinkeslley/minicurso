@@ -6,6 +6,7 @@
 
     <%= render @topic %>
 
+    <%= link_to "Posts", topic_posts_path(@topic), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <%= link_to "Edit this topic", edit_topic_path(@topic), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <%= link_to "Back to topics", topics_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <div class="inline-block ml-2">

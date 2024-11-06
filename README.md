@@ -248,3 +248,307 @@ Indo para a apresentação do Tópico. Adicione o seguinte trecho de código em 
   </ul>
 </div>
 ```
+
+## Criar CRUD de Post
+
+Agora seguindo com a criação do CRUD do Post que terá relação com o Topic.
+
+Primeiro vamos usar o gerador do Rails para para criar a estrutura necessária para adicionarmos as regras necessárias.
+
+```bash
+rails generate scaffold post title:string content:text topic:references
+```
+
+Vamos validar a migração e na sequência "rodar" ela:
+
+```bash
+rails db:migrate
+```
+
+Com isso, podemos seguir criando as validações necessárias e definindo os relacionamentos.
+
+No model `Post` em `app/models/post.rb` adicione o seguinte:
+
+```ruby
+...
+  validates :title, :content, presence: true
+end
+```
+
+No model `Topic` em `app/models/topic.rb` adicione o seguinte embaixo do `belongs_to`
+
+```ruby
+  ...
+  has_many :posts, dependent: :destroy
+```
+
+No arquivo `test/models/post_test.rb` adicione os seguintes testes:
+
+```ruby
+...
+test "the truth" do
+  post = posts(:one)
+  assert post.valid?
+end
+
+test "should not be valid without title" do
+  post = posts(:one)
+  post.title = nil
+
+  assert_not post.valid?
+end
+
+test "should not be valid without content" do
+  post = posts(:one)
+  post.content = nil
+
+  assert_not post.valid?
+end
+
+test "should not be valid without topic" do
+  post = posts(:one)
+  post.topic = nil
+
+  assert_not post.valid?
+end
+```
+
+Agora vamos quebrar as coisas para criarmos rotas aninhadas.
+No arquivo `config/routes.rb` altere isso:
+
+```ruby
+resources :posts
+resources :topics
+```
+
+para:
+
+```ruby
+resources :topics do
+  resources :posts
+end
+```
+
+Com isso geramos rotas aninhadas, e também quebramos toda parte da aplicação relacionado com o Post.
+
+No arquivo `app/controllers/posts_controller.rb` adicione as seguintes linhas de código:
+
+Na linha 2:
+
+```ruby
+before_action :authenticate_user!
+before_action :set_topic
+```
+
+Na linha 62, logo abaixo do `private`:
+
+```ruby
+def set_topic
+  @topic = Topic.find(params.expect(:topic_id))
+end
+```
+
+E na linha 68 altere o para isso:
+
+```ruby
+@post = @topic.posts.find(params.expect(:id))
+```
+
+Na linha 25 altere para isso:
+
+```ruby
+@post = @topic.posts.new(post_params)
+```
+
+Agora precisamos alterar as visualizações.
+
+Acessando a rota `show` de um dos Tópicos e indo na url e alterarmos para: `http://localhost:3000/topics/1/posts`
+poderemos acessar a rota index do Post, ou quase...
+
+No arquivo `app/views/posts/index.html.erb` altere essa linha de código de:
+
+```ruby
+<%= link_to "New post", new_post_path, class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+```
+
+para:
+
+```ruby
+<%= link_to "New post", new_topic_post_path(@topic), class: "rounded-lg py-3 px-5 bg-blue-600 text-white block font-medium" %>
+```
+
+Isso fará com que seja possível acessar a visualização index. E também com esse ajuste vamos poder acessar o visualizarção para criar um novo `Post`.
+
+Clicando no "New post" vamos ser direcionados para a visualização de cadastro do Post. Porém...
+
+Também precisamos aninhar a rota do formulário:
+
+Altere isso:
+
+```ruby
+<%= form_with(model: post, class: "contents") do |form| %>
+```
+
+para:
+
+```ruby
+<%= form_with(model: [ @topic, post ], class: "contents") do |form| %>
+```
+
+Nos arquivos `app/views/posts/new.html.erb`, `app/views/posts/edit.html.erb`, `app/views/posts/show.html.erb` altere o seguinte trecho de:
+
+```ruby
+<%= link_to "Back to posts", posts_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+para:
+```ruby
+<%= link_to "Back to posts", topic_posts_path(@topic), class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+Agora sim podemos acessar o formulário.
+
+Agora vamos  conseguir criar Posts, porém teremos alguns problemas de redirecionamento. Com isos vamos precisar fazer algumas alterações:
+
+Na linha 29 do arquivo `app/controllers/posts_controller.rb` adicione um array e adicione a ele o `@topic` e o `@post`:
+
+```ruby
+format.html { redirect_to [ @topic, @post ], notice: "Post was successfully created." }
+```
+
+Vamos aproveitar e alterar nas outras linhas, inclusive na linha 56:
+
+```ruby
+format.html { redirect_to topic_posts_path(@topic), status: :see_other, notice: "Post was successfully destroyed." }
+```
+
+Agora se tentarmos recarregar a tela, ou voltar para o index dos Posts teremos outro erro, para resolver isso basta apenas fazer a mesma coisa, mas agora dentro de
+uma visualização:
+
+```ruby
+# app/views/posts/index.html.erb
+<%= link_to "Show this post", [ @topic, post ], class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+Clicando no botão "Show this Post" também teremos um erro, e para resolver basta acessar o arquivo `app/views/posts/show.html.erb` e alterar a linha 9 para:
+```ruby
+<%= link_to "Edit this post", edit_topic_post_path(@topic, @post), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+Ainda no `show` altere a linha 12 para:
+
+```ruby
+<%= button_to "Destroy this post", [ @topic, @post ], method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+```
+
+Agora vai funcionar, mas clicando no "Edit" também teremos problemas, mas para isso basta voltarmos para o arquivo `app/views/posts/edit.html.erb` e
+alterar a linha 6 para:
+
+```ruby
+<%= link_to "Show this post", [ @topic, @post ], class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+Com isso já é possível visualizar, editar, criar e remover Posts, mas os testes continuam falhando...
+
+Para resolver vamos isso precisamos ajustar as rotas nos testes e adicionar o sign_in antes de cada chamada.
+
+em `test/controllers/posts_controller_test.rb` faça o seguinte:
+ encontre o `def setup` e nele adicione isso:
+
+```ruby
+setup do
+  @post = posts(:one)
+  @topic = @post.topic
+  @user = @post.user
+end
+```
+
+Se você está se perguntando "Como vamos acessar o user direto pelo @post se o Post não possui usuário?"
+Exato, o Post não tem acesso, mas o Topic sim, e para acessar basta ir no model Post em `app/models/post.rb` e adicionar a seguinte linha embaixo no `belongs_to`:
+
+```ruby
+has_one :user, through: :topic
+```
+
+Isso faz com o que o Post consiga acessar o User através do Topic.
+
+Agora antes de cada teste adicione o
+```ruby
+sign_in @user
+```
+
+e adéque as urls, por exemplo:
+```ruby
+get posts_url
+```
+
+para:
+```ruby
+get topic_posts_url(@topic)
+``` 
+
+Agora temos os testes passando.
+
+```bash
+
+Rebuilding...
+
+Done in 274ms.
+Running 22 tests in a single process (parallelization threshold is 50)
+Run options: --seed 30485
+
+# Running:
+
+......................
+
+Finished in 0.181536s, 121.1881 runs/s, 165.2565 assertions/s.
+22 runs, 30 assertions, 0 failures, 0 errors, 0 skips
+```
+
+Temos quase tudo funcionando, mas ainda precisamos alterar a rota para acessar os Posts do Topic, para isso vamos adicionar um botão para facilitar o acesso:
+
+No arquivo `app/views/topics/show.html.erb` adicione isso na linha 9:
+
+```ruby
+<%= link_to "Posts", topic_posts_path(@topic), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+e no arquivo `app/views/posts/index.html.erb` adicione isso na linha 13 adicione o seguinte:
+
+```ruby
+<div class="mt-5 flex items-start">
+  <%= link_to "Back to topic", topic_path(@topic), class: "rounded-lg py-3 px-5 bg-gray-100 block font-medium" %>
+</div>
+```
+
+Também podemos alterar a exibição do Post para ele seguir o padrão do Topic, para isso, altere o arquivo `app/views/posts/_post.html.erb` para:
+
+```ruby
+<div id="<%= dom_id post %>">
+  <ul role="list" class="divide-y divide-gray-100">
+    <li class="flex justify-between gap-x-6 py-5">
+      <div class="flex min-w-0 gap-x-4">
+        <div class="min-w-0 flex-auto">
+          <p class="text-lg font-semibold text-gray-900"><%= post.title %></p>
+          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= post.content %></p>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+```
+
+E no bloco da linha 18 do arquivo `app/views/posts/index.html.erb` adicione isso:
+
+```ruby
+<% @posts.each do |post| %>
+  <div class="flex justify-between">
+    <%= render post %>
+    <p>
+      <%= link_to "Show this post", [ @topic, post ], class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+    </p>
+  </div>
+<% end %>
+```
+
+Com isso temos a funcionalidade do Post integrada na nossa aplicação, mas ainda podemos melhorar...
