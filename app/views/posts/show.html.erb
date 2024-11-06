@@ -6,10 +6,13 @@
 
     <%= render @post %>
 
-    <%= link_to "Edit this post", edit_topic_post_path(@topic, @post), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
     <%= link_to "Back to posts", topic_posts_path(@topic), class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
-    <div class="inline-block ml-2">
-      <%= button_to "Destroy this post", [ @topic, @post ], method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
-    </div>
+    
+    <% if @topic.user_id.eql?(current_user.id) %>
+      <%= link_to "Edit this post", edit_topic_post_path(@topic, @post), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+      <div class="inline-block ml-2">
+        <%= button_to "Destroy this post", [ @topic, @post ], method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+      </div>
+    <% end %>
   </div>
 </div>

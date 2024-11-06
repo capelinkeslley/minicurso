@@ -4,7 +4,7 @@ class TopicsController < ApplicationController
 
   # GET /topics or /topics.json
   def index
-    @topics = Topic.all
+    @topics = Topic.accessible_by(current_user)
   end
 
   # GET /topics/1 or /topics/1.json
@@ -61,7 +61,7 @@ class TopicsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_topic
-      @topic = Topic.find(params.expect(:id))
+      @topic = Topic.accessible_by(current_user).find(params.expect(:id))
     end
 
     # Only allow a list of trusted parameters through.

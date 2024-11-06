@@ -291,13 +291,6 @@ test "the truth" do
   assert post.valid?
 end
 
-test "should not be valid without title" do
-  post = posts(:one)
-  post.title = nil
-
-  assert_not post.valid?
-end
-
 test "should not be valid without content" do
   post = posts(:one)
   post.content = nil
@@ -601,4 +594,62 @@ Algumas alterações que podemos fazer no `app/views/posts/_post.html.erb`
     </li>
   </ul>
 </div>
+```
+
+## Adicionando algumas regras:
+
+- Retornar para os usuários apenas os seus Topics e Topics públicos
+
+No Model Topic vamos adicionar um scope:
+
+```ruby
+scope :accessible_by, ->(user) {
+  where("is_private = false OR user_id = ?", user.id)
+}
+```
+
+E no TopicsController:
+
+```ruby
+def index
+  @topics = Topic.accessible_by(current_user)
+end
+```
+
+```ruby
+def set_topic
+  @topic = Topic.accessible_by(current_user).find(params.expect(:id))
+end
+```
+
+Também podemos bloquear alguns botões, por exemplo os botões de "Editar" e "Deletar"
+
+No `app/views/topics/show.html.erb`:
+```ruby
+<%= link_to "Posts", topic_posts_path(@topic), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+
+<% if current_user.id.eql?(@topic.user_id) %>
+  <%= link_to "Edit this topic", edit_topic_path(@topic), class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+  <div class="inline-block ml-2">
+    <%= button_to "Destroy this topic", @topic, method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+  </div>
+<% end %>
+
+<%= link_to "Back to topics", topics_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+```
+
+No index do controller do Post:
+
+```ruby
+def index
+  @posts = @topic.posts
+end
+```
+
+No `set_topic` do Post:
+
+```ruby
+def set_topic
+  @topic = Topic.accessible_by(current_user).find(params.expect(:id))
+end
 ```

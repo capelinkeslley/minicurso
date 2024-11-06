@@ -2,8 +2,8 @@ require "test_helper"
 
 class TopicsControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:one)
     @topic = topics(:one)
+    @user = @topic.user
   end
 
   test "should get index" do

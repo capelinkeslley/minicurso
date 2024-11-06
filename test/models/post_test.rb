@@ -13,13 +13,6 @@ class PostTest < ActiveSupport::TestCase
     assert_not post.valid?
   end
 
-  test "should not be valid without content" do
-    post = posts(:one)
-    post.content = nil
-
-    assert_not post.valid?
-  end
-
   test "should not be valid without topic" do
     post = posts(:one)
     post.topic = nil

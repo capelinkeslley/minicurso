@@ -5,7 +5,7 @@ class PostsController < ApplicationController
 
   # GET /posts or /posts.json
   def index
-    @posts = Post.all
+    @posts = @topic.posts
   end
 
   # GET /posts/1 or /posts/1.json
@@ -61,7 +61,7 @@ class PostsController < ApplicationController
 
   private
     def set_topic
-      @topic = Topic.find(params.expect(:topic_id))
+      @topic = Topic.accessible_by(current_user).find(params.expect(:topic_id))
     end
 
     # Use callbacks to share common setup or constraints between actions.
