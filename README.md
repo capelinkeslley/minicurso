@@ -653,3 +653,18 @@ def set_topic
   @topic = Topic.accessible_by(current_user).find(params.expect(:id))
 end
 ```
+
+## Adicionando Header para logout
+
+No `app/views/layouts/application.html.erb`:
+
+```ruby
+<% if current_user.present? %>
+  <div class="w-full bg-gray-100 p-5">
+    <div class="container mx-auto flex justify-between">
+      <%= link_to "Topics", topics_path, class: "ml-2 rounded-lg py-3 px-5 bg-gray-100 inline-block font-medium" %>
+      <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "mt-2 rounded-lg py-3 px-5 bg-gray-100 font-medium" %>
+    </div>
+  </div>
+<% end %>
+```
