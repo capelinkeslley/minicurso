@@ -3,4 +3,6 @@ class Post < ApplicationRecord
   has_one :user, through: :topic
 
   validates :title, :content, presence: true
+
+  has_rich_text :content
 end

@@ -552,3 +552,53 @@ E no bloco da linha 18 do arquivo `app/views/posts/index.html.erb` adicione isso
 ```
 
 Com isso temos a funcionalidade do Post integrada na nossa aplicação, mas ainda podemos melhorar...
+
+## Adicionando o ActionText na aplicação
+
+Que tal fazer com que o `content` do Post aceite textos em negrito, itálico e até scrips (rich text)?
+
+Para isso vamos adicionar o [ActionText](https://edgeguides.rubyonrails.org/action_text_overview.html) no nosso projeto. No terminal rode:
+
+```bash
+rails action_text:install
+```
+
+Isso vai adicionar o ActionText e adicionar alguns arquivos inclusive migrations. Para isso vamos rodar as migrações:
+```bash
+rails db:migrate
+```
+
+Agora no model Post precisamos definir a coluna `rich text`, no nosso caso a `content`:
+
+```ruby
+ has_rich_text :content
+```
+
+E no `app/views/posts/_form.html.erb` precisamos alterar o `form.textarea` para: `form.rich_textarea`:
+```ruby
+<%= form.rich_textarea :content, rows: 4, class: "block shadow rounded-md border border-gray-400 outline-none px-3 py-2 mt-2 w-full" %>
+```
+
+A adição do ActionText alterou alguns arquivos de configuração, e com isso, precisamos parar a aplicação e iniciar ela novamente para "carregar"
+as alterações.
+
+Algumas alterações que podemos fazer no `app/views/posts/_post.html.erb`
+
+```ruby
+<div id="<%= dom_id post %>">
+  <ul role="list" class="divide-y divide-gray-100">
+    <li class="flex justify-between gap-x-6 py-5">
+      <div class="flex min-w-0 gap-x-4">
+        <div class="min-w-0 flex-auto">
+          <p class="text-lg font-semibold text-gray-900"><%= post.title %></p>
+          <% if action_name.eql?('show') %>
+            <p class="mt-1 truncate text-xs/5 text-gray-500"><%= post.content %></p>
+          <% else%>
+          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= distance_of_time_in_words(Post.last.created_at, Time.current) %></p>
+          <% end %>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+```

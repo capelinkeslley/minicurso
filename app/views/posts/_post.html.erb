@@ -4,7 +4,11 @@
       <div class="flex min-w-0 gap-x-4">
         <div class="min-w-0 flex-auto">
           <p class="text-lg font-semibold text-gray-900"><%= post.title %></p>
-          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= post.content %></p>
+          <% if action_name.eql?('show') %>
+            <p class="mt-1 truncate text-xs/5 text-gray-500"><%= post.content %></p>
+          <% else%>
+          <p class="mt-1 truncate text-xs/5 text-gray-500"><%= distance_of_time_in_words(Post.last.created_at, Time.current) %></p>
+          <% end %>
         </div>
       </div>
     </li>
