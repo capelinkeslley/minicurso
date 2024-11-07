@@ -668,3 +668,17 @@ No `app/views/layouts/application.html.erb`:
   </div>
 <% end %>
 ```
+
+## Turbo
+
+No model:
+
+```ruby
+broadcasts_refreshes
+```
+
+No index:
+
+```ruby
+<%= turbo_stream_from :topics %>
+```
