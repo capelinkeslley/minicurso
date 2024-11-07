@@ -674,7 +674,7 @@ No `app/views/layouts/application.html.erb`:
 No model:
 
 ```ruby
-broadcasts_refreshes
+broadcasts_to ->(topic) { :topics }
 ```
 
 No index:
