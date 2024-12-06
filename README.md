@@ -1,5 +1,9 @@
 # Criando um Blog de Notas para Programadores
 
+## Instalação:
+
+[Install Ruby on Rails Guide](https://0e60ea9a.rails-docs-preview.pages.dev/guides/install_ruby_on_rails)
+
 ## Gerando o projeto minicurso:
 
 ```bash
